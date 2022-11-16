@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
 const Nav = () => {
+
 
     const menuItems = <React.Fragment>
         <li><Link className="font-semibold text-accent" to='/home'>Home</Link></li>
@@ -10,6 +12,8 @@ const Nav = () => {
         <li><Link className="font-semibold text-accent" to='/reviews'>Reviews</Link></li>
         <li><Link className="font-semibold text-accent" to='/contact'>Contact us</Link></li>
         <li><Link className="font-semibold text-accent" to='/login'>Login</Link></li>
+        
+       
     </React.Fragment>
     return (
         <div className="navbar flex justify-between">
