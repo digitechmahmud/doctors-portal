@@ -1,21 +1,31 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../contexts/AuthProvider";
 
 const Login = () => {
     const { register, formState: { errors }, handleSubmit } = useForm();
+    const [loginError, setLoginError] = useState('');
 
     const { user, userLogin } = useContext(AuthContext);
 
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/'
+
     const handleLogin = data => {
+        setLoginError('');
         console.log(data);
         userLogin(data.email, data.password)
             .then(result => {
                 const user = result.user;
                 console.log(user);
+                navigate(from, { replace: true });
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error(err);
+                setLoginError(err.message);
+            });
     }
     return (
         <div className='h-[800px] flex justify-center items-center'>
@@ -43,7 +53,11 @@ const Login = () => {
                 <p className='text-accent'>New to Doctors Portal? <Link className='text-secondary link' to="/signup">Create new account</Link></p>
                 <div className="divider text-accent">OR</div>
                 <button className='btn btn-outline btn-primary font-bold  w-full max-w-xs'>CONTINUE WITH GOOGLE</button>
-           </div>
+                <> {
+                    loginError && <p className="text-red-600">{loginError}</p>
+                }</>
+            </div>
+        
         </div>
     );
 };

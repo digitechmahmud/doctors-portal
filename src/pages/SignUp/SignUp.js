@@ -1,10 +1,16 @@
 import React, { useContext } from 'react';
 import { useForm } from "react-hook-form";
-import { Link } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthProvider';
 
 const SignUp = () => {
-    const { user, createUser } = useContext(AuthContext);
+    const { user, createUser, userProfileUpdate } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || '/';
 
     const { register, formState: { errors }, handleSubmit } = useForm();
     const handleRegister = data => {
@@ -13,6 +19,14 @@ const SignUp = () => {
             .then(result => {
                 const user = result.user;
                 console.log(user);
+                toast('User created successfully');
+                navigate(from, { replace: true });
+                const userInfo = {
+                    displayName: data.name
+                }
+                userProfileUpdate(userInfo)
+                    .then(() => {})
+                    .catch(err => console.log(err));
             })
             .catch(err => console.error(err));
 
@@ -51,6 +65,7 @@ const SignUp = () => {
                 <div className="divider text-accent">OR</div>
                 <button className='btn btn-outline btn-primary font-bold  w-full max-w-xs'>CONTINUE WITH GOOGLE</button>
             </div>
+            <Toaster/>
         </div>
     );
 };

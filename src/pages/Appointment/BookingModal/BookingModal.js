@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { format } from 'date-fns';
+import { AuthContext } from '../../../contexts/AuthProvider';
+import toast, { Toaster } from 'react-hot-toast';
 
-const BookingModal = ({ treatment,setTreatment, selectedDate }) => {
+const BookingModal = ({ treatment, setTreatment, selectedDate, refetch }) => {
+    const { user } = useContext(AuthContext);
     const { name, slots } = treatment;
     const date = format(selectedDate, 'PP');
     const handleBooking = e => {
@@ -21,8 +24,29 @@ const BookingModal = ({ treatment,setTreatment, selectedDate }) => {
             phone
         }
 
-        console.log(booking);
-        setTreatment(null);
+        fetch('http://localhost:5005/bookings', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(booking)
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                if (data.acknowledged) {
+                    setTreatment(null);
+                    toast.success('Booking confirmed');
+                    refetch();
+                }
+                else {
+                    toast(data.message);
+                }
+            })
+            .catch(err=>console.log(err))
+
+        // console.log(booking);
+        
     }
     return (
         <>
@@ -39,12 +63,13 @@ const BookingModal = ({ treatment,setTreatment, selectedDate }) => {
                                 slots.map((slot,i) => <option key={i} value={slot}>{slot}</option>)
                             }
                         </select>
-                        <input type="text" name='fullname' placeholder="Full Name" className="input input-bordered input-info w-full " />
+                        <input type="text" name='fullname' placeholder="Full Name" defaultValue={user?.displayName}  className="input input-bordered input-info w-full" readOnly/>
                         <input type="text" name='phone' placeholder="Phone" className="input input-bordered input-info w-full " />
-                        <input type="email" name='email' placeholder="Email" className="input input-bordered input-info w-full " /><br/>
+                        <input type="email" name='email' defaultValue={user?.email} placeholder="Email"  className="input input-bordered input-info w-full " readOnly /><br/>
                         <input className='btn btn-accent w-full' type="submit" value="Submit" />
                     </form>
                 </div>
+                <Toaster/>
             </div>
         </>
     );
